@@ -1,0 +1,114 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+
+
+void sortArray(int start, int end, int masterArray[], int tempArray[]);
+void mergeArray(int start, int split, int end, int masterArray[], int tempArray[]);
+void bruteCount(int masterArray[]);
+
+long long INVERSIONS_SORT = 0;
+long long INVERSIONS_BRUTE = 0;
+int size;
+
+
+int main() {
+
+  std::cout << "Informe o tamanho do vetor:" << '\n';
+  cin >> size;
+
+  int masterArray[size];
+  int tempArray[size];
+
+  if (size < 1000000) {
+    srand((unsigned)time(NULL));
+    for (size_t i = 0; i < size; i++) {
+      masterArray[i] = rand()%1000;
+    }
+  }
+
+  if (size <= 20) {
+    cout << "Vetor = ";
+    for (size_t i = 0; i < size; i++) {
+      cout << masterArray[i] << " ";
+    }
+  }
+
+  bruteCount(masterArray);
+
+  sortArray(0, size - 1, masterArray, tempArray);
+  cout << endl;
+
+  cout << "Vetor ordenado: ";
+  if (size <= 20){
+    for (size_t i = 0; i < size; i++) {
+      cout << masterArray[i] << " ";
+    }
+  }
+  cout << endl;
+  cout << "\nNúmero de inversões por força bruta: " << INVERSIONS_BRUTE << endl;
+  cout << "Número de inversões pelo merge sort: " << INVERSIONS_SORT << endl;
+
+}
+
+//Função recursiva para separar o vetor em subvetores
+void sortArray(int start, int end, int masterArray[], int tempArray[]) {
+  int split = (start + end) / 2;
+
+  if (start < end) {
+    sortArray(start, split, masterArray, tempArray);
+    sortArray(split + 1, end, masterArray, tempArray);
+    mergeArray(start, split, end, masterArray, tempArray);
+  }
+
+
+}
+
+//Função para dar o merge nos dois vetores na ordem correta, contando o número de inversões
+void mergeArray(int start, int split, int end, int masterArray[], int tempArray[]) {
+  int leftCount = start; //Contador para o vetor esquerdo
+  int rightCount = split+1; //Contador para o vertor direito
+  int tempCount = start; //Contador para o vetor temporário
+
+  while ((leftCount <= split) && (rightCount <= end)) { //Quando ainda existem valores nos dois vetores
+    if (masterArray[leftCount] <= masterArray[rightCount]) { //Se o valor da esquerda for menor
+      tempArray[tempCount] = masterArray[leftCount];
+      leftCount++;
+    }
+    else {
+      tempArray[tempCount] = masterArray[rightCount];  //ISe o valor da direita foi menor
+      INVERSIONS_SORT = INVERSIONS_SORT + (split + 1 - leftCount);
+      rightCount++;
+    }
+    tempCount++;
+  }
+
+  //Limpa quando terminou de varrer um dos vetores
+  if (leftCount > split) {
+    for (int i = rightCount; i <= end; i++) {
+      tempArray[tempCount] = masterArray[i];
+      tempCount++;
+    }
+  }
+  else {
+    for (int i = leftCount; i <= split; i++) {
+      tempArray[tempCount] = masterArray[i];
+      tempCount++;
+    }
+  }
+
+  //Copia o vetor temporario para o vetor principal
+  for (int i = start; i <= end; i++)
+    masterArray[i] = tempArray[i];
+
+}
+
+
+//Conta o número de inversões por força bruta
+void bruteCount(int masterArray[]) {
+
+  for (int i = 0; i < size-1; i++)
+    for (int j = i + 1; j < size; j++)
+      if (masterArray[i] > masterArray[j])
+        INVERSIONS_BRUTE++;
+}
