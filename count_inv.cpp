@@ -1,8 +1,10 @@
 #include <bits/stdc++.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 
 using namespace std;
 
-
+double calcula_tempo(const struct rusage *b, const struct rusage *a);
 void sortArray(int start, int end, int masterArray[], int tempArray[]);
 void mergeArray(int start, int split, int end, int masterArray[], int tempArray[]);
 void bruteCount(int masterArray[]);
@@ -19,6 +21,7 @@ int main() {
 
   int masterArray[size];
   int tempArray[size];
+  struct rusage tempo_inicial, tempo_final;
 
   if (size < 1000000) {
     srand((unsigned)time(NULL));
@@ -34,20 +37,30 @@ int main() {
     }
   }
 
-  bruteCount(masterArray);
+  getrusage(RUSAGE_SELF, &tempo_inicial);
+    bruteCount(masterArray);
+  getrusage(RUSAGE_SELF, &tempo_final);
+  double tempo = calcula_tempo(&tempo_inicial, &tempo_final);
 
-  sortArray(0, size - 1, masterArray, tempArray);
+  getrusage(RUSAGE_SELF, &tempo_inicial);
+    sortArray(0, size - 1, masterArray, tempArray);
+  getrusage(RUSAGE_SELF, &tempo_final);
+  double tempo2 = calcula_tempo(&tempo_inicial, &tempo_final);
   cout << endl;
 
-  cout << "Vetor ordenado: ";
+
   if (size <= 20){
+    cout << "Vetor ordenado: ";
     for (size_t i = 0; i < size; i++) {
       cout << masterArray[i] << " ";
     }
   }
   cout << endl;
   cout << "\nNúmero de inversões por força bruta: " << INVERSIONS_BRUTE << endl;
-  cout << "Número de inversões pelo merge sort: " << INVERSIONS_SORT << endl;
+  cout << "Tempo por força bruta: " << tempo << endl;
+  cout << endl;
+  cout << "\nNúmero de inversões pelo merge sort: " << INVERSIONS_SORT << endl;
+  cout << "Tempo pelo merge sort: " << tempo2 << endl;
 
 }
 
@@ -111,4 +124,16 @@ void bruteCount(int masterArray[]) {
     for (int j = i + 1; j < size; j++)
       if (masterArray[i] > masterArray[j])
         INVERSIONS_BRUTE++;
+}
+
+//Função para calcular o tempo gasto
+double calcula_tempo(const struct rusage *b, const struct rusage *a) {
+    if (b == NULL || a == NULL)
+        return 0;
+    else
+        return ((((a->ru_utime.tv_sec * 1000000 + a->ru_utime.tv_usec) -
+                 (b->ru_utime.tv_sec * 1000000 + b->ru_utime.tv_usec)) +
+                ((a->ru_stime.tv_sec * 1000000 + a->ru_stime.tv_usec) -
+                 (b->ru_stime.tv_sec * 1000000 + b->ru_stime.tv_usec)))
+                / 1000000.0);
 }
