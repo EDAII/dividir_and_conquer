@@ -6,7 +6,8 @@ João Vítor Morandi Lemos | 16/0010195
 Rômulo Vinícius de Souza | 15/0147601
 
 Arquivo | Tipo
-lista5.cpp | Merge Sort
+----- | ---------
+count_inv.cpp | Merge Sort
 
 ## Medição dos tempos de execução
 
